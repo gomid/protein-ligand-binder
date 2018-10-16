@@ -109,16 +109,53 @@ def preprocess(seq, scale=1):
         grids.append(grid)
     return grids[0], grids[1]
 
+"""
+Round to nearest integer
+"""
+def generate(lig_id, pro_id, radius):
+    def add_to_grid(grid, atom, polarity, target=0):
+        grid[atom[0]][atom[1]][atom[2]][0] = 1
+        grid[atom[0]][atom[1]][atom[2]][1] = polarity
+        grid[atom[0]][atom[1]][atom[2]][2] = target
+
+    grids = []
+    lig_atoms, lig_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % lig_id, "lig"))
+    pro_atoms, pro_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % pro_id, "pro"))
+    N = radius * 2 + 1
+    offset = np.array([radius, radius, radius])
+    for i in range(len(lig_atoms)):
+        lig_atom = lig_atoms[i]
+        center = (lig_atom + np.array([0.5, 0.5, 0.5])).astype(int)
+        grid = np.zeros(shape=(N, N, N, 3))
+        lo = center - offset
+        hi = center + offset
+
+        add_to_grid(grid, center - lo, 0 if lig_atom_type_list[i] == 'C' else 1, target=1)
+
+        for j in range(len(pro_atoms)):
+            atom = (pro_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
+            if np.all(atom >= lo) and np.all(atom <= hi):
+                add_to_grid(grid, atom - lo, 0 if pro_atom_type_list[j] == 'C' else 1)
+
+        for j in range(len(lig_atoms)):
+            atom = (lig_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
+            if i != j and np.all(atom >= lo) and np.all(atom <= hi):
+                add_to_grid(grid, atom - lo, 0 if lig_atom_type_list[j] == 'C' else 1)
+
+        grids.append(grid)
+
+    return grids
+
 
 """
 [310.935 432.956 435.107]
 [-244.401 -229.648 -177.028]
 """
-def coordinate_range():
+def coordinate_range(type="pro"):
     maxs = []
     mins = []
     for i in range(1, 3001):
-        p_coordinates, _ = read_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % i))
+        p_coordinates, _ = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % i, type))
         min_point, max_point = find_bounding_box(p_coordinates)
         maxs.append(max_point)
         mins.append(min_point)
@@ -133,10 +170,12 @@ def test():
 
 def main():
     # calculate_atom_distances()
+    # np.set_printoptions(threshold=np.nan)
+    generate(1, 1, 10)
 
-    pro, lig = preprocess(1, 1)
-    print(sys.getsizeof(pro))
-    print(sys.getsizeof(lig))
+    # pro, lig = preprocess(1, 1)
+    # print(sys.getsizeof(pro))
+    # print(sys.getsizeof(lig))
 
     # x_range_max = 0
     # y_range_max = 0

@@ -1,24 +1,26 @@
-from utils import preprocess
+from utils import generate
 from model import build_model
 from keras import optimizers, losses, utils
-import numpy as np
+
 
 def training():
-    model = build_model()
+    radis = 10
+    dimension = radis * 2 + 1
+    model = build_model(input_shape=(dimension, dimension, dimension, 3))
     # utils.plot_model(model, to_file='model.png')
     adam = optimizers.Adam()
-    model.compile(optimizer=adam, loss=losses.mse, metrics=["accuracy"])
-    proteins = []
-    ligands = []
-    for i in range(1, 100):
-        pro, lig = preprocess(i)
-        if pro is not None:
-            proteins.append(pro)
-            ligands.append(lig)
+    model.compile(optimizer=adam, loss=losses.binary_crossentropy, metrics=["accuracy"])
 
-    labels = np.ones(shape=(len(proteins),))
+    data = []
+    labels = []
+    for i in range(1, 3001):
+        for j in range(1, 3001):
+            grids = generate(i, j, 10)
+            data.extend(grids)
+            label = 1 if i == j else 0
+            labels.extend([label]*(len(grids)))
 
-    model.fit([proteins, ligands], [labels], validation_split=0.2, batch_size=10, epochs=3)
+    model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=3)
 
 
 if __name__ == '__main__':

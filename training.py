@@ -10,7 +10,7 @@ def initializer():
     global ligands
     proteins = [[None, None]]
     ligands = [[None, None]]
-    for i in range(1, 3001):
+    for i in range(1, RANGE):
         p_coordinates, p_atom_types = read_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % i))
         l_coordinates, l_atom_types = read_pdb("training_data/{0}_lig_cg.pdb".format('%04d' % i))
         proteins.append([p_coordinates, p_atom_types])
@@ -21,8 +21,8 @@ def initializer():
 def parallel_generate(i):
     data = []
     labels = []
-    for j in range(1, 3001):
-        grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], 10, 10)
+    for j in range(1, RANGE):
+        grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
         data.extend(grids)
         label = 1 if i == j else 0
         labels.extend([label] * (len(grids)))
@@ -34,7 +34,7 @@ def generate_training_data_parallel():
     cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(cores, initializer)
     print("Generating training examples on {} CPU cores".format(cores))
-    data, labels = zip(*pool.map(parallel_generate, range(1, 3001)))
+    data, labels = zip(*pool.map(parallel_generate, range(1, RANGE)))
     pool.close()
     pool.join()
     data = [item for sublist in data for item in sublist]
@@ -42,19 +42,19 @@ def generate_training_data_parallel():
     return data, labels
 
 
-def generate_training_data(radius):
+def generate_training_data():
     data = []
     labels = []
     proteins = [[None, None]]
     ligands = [[None, None]]
-    for i in range(1, 3001):
+    for i in range(1, RANGE):
         p_coordinates, p_atom_types = read_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % i))
         l_coordinates, l_atom_types = read_pdb("training_data/{0}_lig_cg.pdb".format('%04d' % i))
         proteins.append([p_coordinates, p_atom_types])
         ligands.append([l_coordinates, l_atom_types])
-    for i in range(1, 3001):
-        for j in range(1, 3001):
-            grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], radius, 10)
+    for i in range(1, RANGE):
+        for j in range(1, RANGE):
+            grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
             data.extend(grids)
             label = 1 if i == j else 0
             labels.extend([label]*(len(grids)))
@@ -62,23 +62,22 @@ def generate_training_data(radius):
 
 
 def training():
-    radius = 10
-    dimension = radius * 2 + 1
+    dimension = RADIUS * 2 + 1
     model = build_model(input_shape=(dimension, dimension, dimension, 3))
     # utils.plot_model(model, to_file='model.png')
     adam = optimizers.Adam()
     model.compile(optimizer=adam, loss=losses.binary_crossentropy, metrics=["accuracy"])
 
     data, labels = generate_training_data_parallel()
-    # data, labels = generate_training_data(radius)
+    # data, labels = generate_training_data()
     print("Generated {} examples".format(len(data)))
 
     # memory usage
     process = psutil.Process(os.getpid())
-    print("Used total memory: ", process.memory_info().rss)
+    print("Used total memory: {}".format(process.memory_info().rss))
 
     print("Starting training")
-    model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=5, callbacks=[callbacks.EarlyStopping()])
+    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=5, callbacks=[callbacks.EarlyStopping()])
 
     print("Saving model")
     # serialize model to JSON
@@ -90,5 +89,8 @@ def training():
 
 
 if __name__ == '__main__':
+    RANGE = 300
+    RADIUS = 10
+    DISTANCE_THRESHOLD = 10
     training()
 

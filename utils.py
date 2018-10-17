@@ -51,8 +51,8 @@ def cal_atom_distance(p_atom, l_atom):
     return sqrt(x * x + y * y + z * z)
 
 
-def max_atom_distance(p_coordinates, l_coordinates, metric='euclidean'):
-    dis_matrix = spatial.distance.cdist(p_coordinates, l_coordinates, metric)
+def max_atom_distance(p_coordinates, l_coordinates):
+    dis_matrix = spatial.distance.cdist(p_coordinates, l_coordinates)
     return max(dis_matrix.min(axis=0))
 
 
@@ -112,7 +112,7 @@ def preprocess(seq, scale=1):
     return grids[0], grids[1]
 
 
-def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radius, distance_threshold=None, metric='euclidean'):
+def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radius, distance_threshold=None):
     """
     Generate grids for protein-lig pair based on each ligand atom
     Round to nearest integer
@@ -124,7 +124,7 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
     # lig_atoms, lig_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % lig_id, "lig"))
     # pro_atoms, pro_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % pro_id, "pro"))
 
-    if distance_threshold and max_atom_distance(pro_atoms, lig_atoms, metric) > distance_threshold:
+    if distance_threshold and max_atom_distance(pro_atoms, lig_atoms) > distance_threshold:
         return grids
 
     N = radius * 2 + 1

@@ -26,7 +26,7 @@ def parallel_generate(i):
     data = []
     labels = []
     for j in range(1, RANGE):
-        grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD, DISTANCE_METRIC)
+        grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
         data.extend(grids)
         label = 1 if i == j else 0
         labels.extend([label] * (len(grids)))
@@ -58,7 +58,7 @@ def generate_training_data():
         ligands.append([l_coordinates, l_atom_types])
     for i in range(1, RANGE):
         for j in range(1, RANGE):
-            grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD, DISTANCE_METRIC)
+            grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
             data.extend(grids)
             label = 1 if i == j else 0
             labels.extend([label]*(len(grids)))
@@ -104,7 +104,5 @@ if __name__ == '__main__':
     RANGE = 300
     RADIUS = 7
     DISTANCE_THRESHOLD = 7
-    # DISTANCE_METRIC = 'chebyshev'
-    DISTANCE_METRIC = 'euclidean'
     training()
 

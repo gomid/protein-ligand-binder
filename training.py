@@ -80,16 +80,16 @@ def training():
     process = psutil.Process(os.getpid())
     print("Used total memory: {}".format(process.memory_info().rss))
 
-    # print("Starting training")
-    # model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=5, callbacks=[callbacks.EarlyStopping()])
-    #
-    # print("Saving model")
-    # # serialize model to JSON
-    # model_json = model.to_json()
-    # with open("model.json", "w") as json_file:
-    #     json_file.write(model_json)
-    # # serialize weights to HDF5
-    # model.save_weights("model.h5")
+    print("Starting training")
+    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=5, callbacks=[callbacks.EarlyStopping()])
+
+    print("Saving model")
+    # serialize model to JSON
+    model_json = model.to_json()
+    with open("model.json", "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights("model.h5")
 
 
 if __name__ == '__main__':

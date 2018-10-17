@@ -4,7 +4,7 @@ from keras import optimizers, losses, utils
 
 
 def training():
-    radius = 7
+    radius = 10
     dimension = radius * 2 + 1
     model = build_model(input_shape=(dimension, dimension, dimension, 3))
     # utils.plot_model(model, to_file='model.png')
@@ -15,12 +15,12 @@ def training():
     labels = []
     for i in range(1, 3001):
         for j in range(1, 3001):
-            grids = generate(i, j, radius)
+            grids = generate(i, j, radius, distance_threshold=10)
             data.extend(grids)
             label = 1 if i == j else 0
             labels.extend([label]*(len(grids)))
 
-    model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=3)
+    model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=1)
 
 
 if __name__ == '__main__':

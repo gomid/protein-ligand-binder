@@ -81,7 +81,8 @@ non-paired && distance > 7: max 610, avg 50.9, 86.8% out of 9000000 combinations
 """
 def calculate_atom_distances():
     import multiprocessing
-    pool = multiprocessing.Pool(4, initializer)
+    cores = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(cores, initializer)
     distances = pool.map(distance_worker, range(1, 3001))
     pool.close()
     pool.join()
@@ -90,6 +91,7 @@ def calculate_atom_distances():
     print(min(distances))
     print(len(distances))
     print(sum(distances))
+
 
 def preprocess(seq, scale=1):
     grids = []
@@ -110,7 +112,7 @@ def preprocess(seq, scale=1):
     return grids[0], grids[1]
 
 
-def generate(lig_id, pro_id, radius, distance_threshold=None):
+def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radius, distance_threshold=None):
     """
     Generate grids for protein-lig pair based on each ligand atom
     Round to nearest integer
@@ -121,8 +123,8 @@ def generate(lig_id, pro_id, radius, distance_threshold=None):
         grid[atom[0]][atom[1]][atom[2]][2] = target
 
     grids = []
-    lig_atoms, lig_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % lig_id, "lig"))
-    pro_atoms, pro_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % pro_id, "pro"))
+    # lig_atoms, lig_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % lig_id, "lig"))
+    # pro_atoms, pro_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % pro_id, "pro"))
 
     if distance_threshold and max_atom_distance(pro_atoms, lig_atoms) > distance_threshold:
         return grids

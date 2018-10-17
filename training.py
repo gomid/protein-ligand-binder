@@ -101,8 +101,8 @@ def training():
 
 
 if __name__ == '__main__':
-    RANGE = 300
-    RADIUS = 7
+    RANGE = 30
+    RADIUS = 6
     DISTANCE_THRESHOLD = 7
     training()
 

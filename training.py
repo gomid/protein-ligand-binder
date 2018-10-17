@@ -93,9 +93,9 @@ def training():
 
 
 if __name__ == '__main__':
-    RANGE = 20
-    RADIUS = 10
-    DISTANCE_THRESHOLD = 8
+    RANGE = 300
+    RADIUS = 7
+    DISTANCE_THRESHOLD = 10
     # DISTANCE_METRIC = 'chebyshev'
     DISTANCE_METRIC = 'euclidean'
     training()

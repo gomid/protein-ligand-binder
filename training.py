@@ -20,7 +20,7 @@ def training():
             label = 1 if i == j else 0
             labels.extend([label]*(len(grids)))
 
-    model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=1)
+    model.fit([data], [labels], validation_split=0.2, batch_size=1, epochs=1)
 
     # serialize model to JSON
     model_json = model.to_json()

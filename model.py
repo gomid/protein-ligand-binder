@@ -1,7 +1,7 @@
 from keras.models import Model
 from keras.layers import Input, Dense, Dropout, Flatten, Conv3D, MaxPool3D, concatenate
 
-def build_model(input_shape=(21, 21, 21, 3)):
+def build_model(input_shape=(21, 21, 21, 1)):
     input_grid = Input(shape=input_shape)
     x = Conv3D(filters=16, kernel_size=(8, 8, 8), padding='valid', activation='relu')(input_grid)
     x = Conv3D(filters=32, kernel_size=(4, 4, 4), padding='valid', activation='relu')(x)

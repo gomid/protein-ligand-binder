@@ -117,10 +117,8 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
     Generate grids for protein-lig pair based on each ligand atom
     Round to nearest integer
     """
-    def add_to_grid(grid, atom, polarity, target=0):
-        grid[atom[0]][atom[1]][atom[2]][0] = 1
-        grid[atom[0]][atom[1]][atom[2]][1] = polarity
-        grid[atom[0]][atom[1]][atom[2]][2] = target
+    def add_to_grid(grid, atom, polarity):
+        grid[atom[0]][atom[1]][atom[2]][0] = polarity
 
     grids = []
     # lig_atoms, lig_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % lig_id, "lig"))
@@ -134,21 +132,21 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
     for i in range(len(lig_atoms)):
         lig_atom = lig_atoms[i]
         center = (lig_atom + np.array([0.5, 0.5, 0.5])).astype(int)
-        grid = np.zeros(shape=(N, N, N, 3))
+        grid = np.zeros(shape=(N, N, N, 1))
         lo = center - offset
         hi = center + offset
 
-        add_to_grid(grid, center - lo, 0 if lig_atom_type_list[i] == 'C' else 1, target=1)
+        add_to_grid(grid, center - lo, 1 if lig_atom_type_list[i] == 'C' else 2)
 
         for j in range(len(pro_atoms)):
             atom = (pro_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if np.all(atom >= lo) and np.all(atom <= hi):
-                add_to_grid(grid, atom - lo, 0 if pro_atom_type_list[j] == 'C' else 1)
+                add_to_grid(grid, atom - lo, 1 if lig_atom_type_list[i] == 'C' else 2)
 
         for j in range(len(lig_atoms)):
             atom = (lig_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if i != j and np.all(atom >= lo) and np.all(atom <= hi):
-                add_to_grid(grid, atom - lo, 0 if lig_atom_type_list[j] == 'C' else 1)
+                add_to_grid(grid, atom - lo, 1 if lig_atom_type_list[i] == 'C' else 2)
 
         grids.append(grid)
 

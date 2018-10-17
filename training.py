@@ -1,7 +1,6 @@
 from utils import generate, read_pdb
 from model import build_model
 from keras import optimizers, losses
-import logging
 
 
 def initializer():
@@ -14,7 +13,7 @@ def initializer():
         l_coordinates, l_atom_types = read_pdb("training_data/{0}_lig_cg.pdb".format('%04d' % i))
         proteins.append([p_coordinates, p_atom_types])
         ligands.append([l_coordinates, l_atom_types])
-    logging.info("Loaded training dataset")
+    print("Loaded training dataset")
 
 
 def parallel_generate(i):
@@ -32,7 +31,7 @@ def generate_training_data():
     import multiprocessing
     cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(cores, initializer)
-    logging.info("Generating training examples on {} CPU cores".format(cores))
+    print("Generating training examples on {} CPU cores".format(cores))
     result = pool.map(parallel_generate, range(1, 3001))
     pool.close()
     pool.join()
@@ -57,12 +56,12 @@ def training():
     #         label = 1 if i == j else 0
     #         labels.extend([label]*(len(grids)))
     data, labels = generate_training_data()
-    logging.info("Generated {} examples".format(len(data)))
+    print("Generated {} examples".format(len(data)))
 
-    logging.info("Starting training")
+    print("Starting training")
     model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=10)
 
-    logging.info("Saving model")
+    print("Saving model")
     # serialize model to JSON
     model_json = model.to_json()
     with open("model.json", "w") as json_file:

@@ -1,6 +1,6 @@
 from utils import generate, read_pdb
 from model import build_model
-from keras import optimizers, losses
+from keras import optimizers, losses, callbacks
 import os
 import psutil
 
@@ -78,7 +78,7 @@ def training():
     print("Used total memory: ", process.memory_info().rss)
 
     print("Starting training")
-    model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=10)
+    model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=5, callbacks=[callbacks.EarlyStopping()])
 
     print("Saving model")
     # serialize model to JSON

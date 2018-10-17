@@ -22,6 +22,13 @@ def training():
 
     model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=1)
 
+    # serialize model to JSON
+    model_json = model.to_json()
+    with open("model.json", "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights("model.h5")
+
 
 if __name__ == '__main__':
     training()

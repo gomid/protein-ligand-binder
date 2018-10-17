@@ -86,9 +86,10 @@ def training():
     weights = class_weight.compute_class_weight('balanced', unique_labels, labels)
 
     print("Starting training")
-    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=5,
+    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=50,
               class_weight=dict(zip(unique_labels, weights)),
-              callbacks=[callbacks.EarlyStopping()])
+              # callbacks=[callbacks.EarlyStopping()]
+              )
 
     print("Saving model")
     # serialize model to JSON
@@ -102,7 +103,7 @@ def training():
 if __name__ == '__main__':
     RANGE = 300
     RADIUS = 7
-    DISTANCE_THRESHOLD = 10
+    DISTANCE_THRESHOLD = 7
     # DISTANCE_METRIC = 'chebyshev'
     DISTANCE_METRIC = 'euclidean'
     training()

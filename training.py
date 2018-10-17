@@ -4,8 +4,8 @@ from keras import optimizers, losses, utils
 
 
 def training():
-    radis = 10
-    dimension = radis * 2 + 1
+    radius = 7
+    dimension = radius * 2 + 1
     model = build_model(input_shape=(dimension, dimension, dimension, 3))
     # utils.plot_model(model, to_file='model.png')
     adam = optimizers.Adam()
@@ -15,7 +15,7 @@ def training():
     labels = []
     for i in range(1, 3001):
         for j in range(1, 3001):
-            grids = generate(i, j, 10)
+            grids = generate(i, j, radius)
             data.extend(grids)
             label = 1 if i == j else 0
             labels.extend([label]*(len(grids)))

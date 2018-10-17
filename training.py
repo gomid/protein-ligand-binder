@@ -4,6 +4,9 @@ from keras import optimizers, losses, callbacks
 import os
 import time
 import psutil
+from sklearn.utils import class_weight
+import numpy as np
+
 
 
 def initializer():
@@ -74,14 +77,18 @@ def training():
     # data, labels = generate_training_data()
     print("Generated {} examples".format(len(data)))
     print("--- %s seconds ---" % (time.time() - start_time))
-
-
     # memory usage
     process = psutil.Process(os.getpid())
     print("Used total memory: {}".format(process.memory_info().rss))
 
+    # class weights
+    unique_labels = np.unique(labels)
+    weights = class_weight.compute_class_weight('balanced', unique_labels, labels)
+
     print("Starting training")
-    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=5, callbacks=[callbacks.EarlyStopping()])
+    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=5,
+              class_weight=dict(zip(unique_labels, weights)),
+              callbacks=[callbacks.EarlyStopping()])
 
     print("Saving model")
     # serialize model to JSON

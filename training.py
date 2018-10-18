@@ -10,10 +10,9 @@ def generate_training_data():
     X = []
     Y = []
     for i in range(1, RANGE):
-        for j in range(1, RANGE):
-            grids, labels = generate(i, j, RADIUS, DISTANCE_THRESHOLD)
-            X.extend(grids)
-            Y.extend(labels)
+        grids, labels = generate(i, i, RADIUS, DISTANCE_THRESHOLD)
+        X.extend(grids)
+        Y.extend(labels)
     return X, Y
 
 

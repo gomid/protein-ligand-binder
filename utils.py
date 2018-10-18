@@ -112,7 +112,7 @@ def preprocess(seq, scale=1):
     return grids[0], grids[1]
 
 
-def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radius, distance_threshold=None):
+def generate(lig_id, pro_id, radius, distance_threshold=None):
     """
     Generate grids for protein-lig pair based on each ligand atom
     Round to nearest integer
@@ -123,8 +123,9 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
         grid[atom[0]][atom[1]][atom[2]][2] = target
 
     grids = []
-    # lig_atoms, lig_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % lig_id, "lig"))
-    # pro_atoms, pro_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % pro_id, "pro"))
+    labels = []
+    lig_atoms, lig_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % lig_id, "lig"))
+    pro_atoms, pro_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % pro_id, "pro"))
 
     if distance_threshold and max_atom_distance(pro_atoms, lig_atoms) > distance_threshold:
         return grids
@@ -137,27 +138,22 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
         grid = np.zeros(shape=(N, N, N, 3))
         lo = center - offset
         hi = center + offset
-
-        add_to_grid(grid, center - lo, 0 if lig_atom_type_list[i] == 'C' else 1, 1)
-        num_neighbor = 0
         for j in range(len(pro_atoms)):
             atom = (pro_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if np.all(atom >= lo) and np.all(atom <= hi):
-                num_neighbor = num_neighbor + 1
-                add_to_grid(grid, atom - lo, 0 if pro_atom_type_list[i] == 'C' else 1)
+                add_to_grid(grid, atom - lo, 0 if pro_atom_type_list[j] == 'h' else 1)
 
         for j in range(len(lig_atoms)):
             atom = (lig_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if i != j and np.all(atom >= lo) and np.all(atom <= hi):
-                num_neighbor = num_neighbor + 1
-                add_to_grid(grid, atom - lo, 0 if lig_atom_type_list[i] == 'C' else 1)
+                add_to_grid(grid, atom - lo, 0 if lig_atom_type_list[j] == 'h' else 1)
 
-        # print(num_neighbor)
-        # if (num_neighbor > 10):
-        #     grids.append(grid)
         grids.append(grid)
+        label = lig_atom.tolist()
+        label.append(0 if lig_atom_type_list[i] == 'h' else 1)
+        labels.append(label)
 
-    return grids
+    return grids, labels
 
 
 """
@@ -182,8 +178,8 @@ def test():
 
 
 def main():
-    # calculate_atom_distances()
-    test()
+    generate(32, 32, 7, 10)
+
 
 if __name__ == '__main__':
     main()

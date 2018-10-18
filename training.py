@@ -78,7 +78,7 @@ def training():
     dimension = RADIUS * 2 + 1
     model = build_model(input_shape=(dimension, dimension, dimension, 3))
     # utils.plot_model(model, to_file='model.png')
-    adam = optimizers.Adam()
+    adam = optimizers.Adam(decay=0.01)
     model.compile(optimizer=adam, loss=losses.binary_crossentropy, metrics=["accuracy"])
 
     start_time = time.time()

@@ -6,7 +6,7 @@ import time
 import psutil
 from sklearn.utils import class_weight
 import numpy as np
-from random import randint
+from random import shuffle
 
 
 
@@ -31,20 +31,15 @@ def parallel_generate(i):
     label = 1
     labels.extend([label] * (len(grids)))
 
-    while True:
-        j = randint(1, RANGE-1)
+    randomized_range = list(range(1, RANGE))
+    shuffle(randomized_range)
+    for j in randomized_range:
         grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
         data.extend(grids)
-        label = 0
+        label = 1 if i == j else 0
         labels.extend([label] * (len(grids)))
         if len(grids) > 0:
-            break
-
-    # for j in range(1, RANGE):
-    #     grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
-    #     data.extend(grids)
-    #     label = 1 if i == j else 0
-    #     labels.extend([label] * (len(grids)))
+            return data, labels
     return data, labels
 
 

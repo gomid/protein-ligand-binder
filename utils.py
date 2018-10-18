@@ -153,6 +153,7 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
         # print(num_neighbor)
         # if (num_neighbor > 10):
         #     grids.append(grid)
+        grids.append(grid)
 
     return grids
 

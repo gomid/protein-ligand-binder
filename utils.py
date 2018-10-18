@@ -150,9 +150,9 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
                 num_neighbor = num_neighbor + 1
                 add_to_grid(grid, atom - lo, 1 if lig_atom_type_list[i] == 'C' else 2)
 
-        print(num_neighbor)
-        if (num_neighbor > 10):
-            grids.append(grid)
+        # print(num_neighbor)
+        # if (num_neighbor > 10):
+        #     grids.append(grid)
 
     return grids
 

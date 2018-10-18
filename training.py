@@ -32,7 +32,7 @@ def parallel_generate(i):
     labels.extend([label] * (len(grids)))
 
     while True:
-        j = randint(1, RANGE)
+        j = randint(1, RANGE-1)
         grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
         data.extend(grids)
         label = 0
@@ -99,10 +99,11 @@ def training():
     # class weights
     unique_labels = np.unique(labels)
     weights = class_weight.compute_class_weight('balanced', unique_labels, labels)
+    print("Weights: {}".format(weights))
 
     print("Starting training")
-    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=50,
-              class_weight=dict(zip(unique_labels, weights)),
+    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=50
+              # class_weight=dict(zip(unique_labels, weights)),
               # callbacks=[callbacks.EarlyStopping()]
               )
 

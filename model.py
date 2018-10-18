@@ -1,6 +1,8 @@
 from keras.models import Model
 from keras.layers import Input, Dense, Dropout, Flatten, Conv3D, MaxPool3D, concatenate
 
+
+# grid -> CNN based model -> [x, y, z] of the ligand
 def build_model(input_shape=(21, 21, 21, 3)):
     input_grid = Input(shape=input_shape)
     x = Conv3D(filters=16, kernel_size=(8, 8, 8), padding='valid', activation='relu')(input_grid)

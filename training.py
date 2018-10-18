@@ -76,7 +76,7 @@ def generate_training_data():
 
 def training():
     dimension = RADIUS * 2 + 1
-    model = build_model(input_shape=(dimension, dimension, dimension, 1))
+    model = build_model(input_shape=(dimension, dimension, dimension, 2))
     # utils.plot_model(model, to_file='model.png')
     adam = optimizers.Adam()
     model.compile(optimizer=adam, loss=losses.binary_crossentropy, metrics=["accuracy"])
@@ -111,7 +111,7 @@ def training():
 
 
 if __name__ == '__main__':
-    RANGE = 300
+    RANGE = 30
     RADIUS = 7
     DISTANCE_THRESHOLD = 7
     training()

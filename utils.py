@@ -118,6 +118,7 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
     Round to nearest integer
     """
     def add_to_grid(grid, atom, polarity):
+        grid[atom[0]][atom[1]][atom[2]][0] = 1
         grid[atom[0]][atom[1]][atom[2]][0] = polarity
 
     grids = []
@@ -132,23 +133,23 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
     for i in range(len(lig_atoms)):
         lig_atom = lig_atoms[i]
         center = (lig_atom + np.array([0.5, 0.5, 0.5])).astype(int)
-        grid = np.zeros(shape=(N, N, N, 1))
+        grid = np.zeros(shape=(N, N, N, 2))
         lo = center - offset
         hi = center + offset
 
-        add_to_grid(grid, center - lo, 1 if lig_atom_type_list[i] == 'C' else 2)
+        add_to_grid(grid, center - lo, 0 if lig_atom_type_list[i] == 'C' else 1)
         num_neighbor = 0
         for j in range(len(pro_atoms)):
             atom = (pro_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if np.all(atom >= lo) and np.all(atom <= hi):
                 num_neighbor = num_neighbor + 1
-                add_to_grid(grid, atom - lo, 1 if pro_atom_type_list[i] == 'C' else 2)
+                add_to_grid(grid, atom - lo, 0 if pro_atom_type_list[i] == 'C' else 1)
 
         for j in range(len(lig_atoms)):
             atom = (lig_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if i != j and np.all(atom >= lo) and np.all(atom <= hi):
                 num_neighbor = num_neighbor + 1
-                add_to_grid(grid, atom - lo, 1 if lig_atom_type_list[i] == 'C' else 2)
+                add_to_grid(grid, atom - lo, 0 if lig_atom_type_list[i] == 'C' else 1)
 
         # print(num_neighbor)
         # if (num_neighbor > 10):

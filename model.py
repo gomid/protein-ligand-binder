@@ -27,5 +27,5 @@ def build_model(input_shape=(21, 21, 21, 3)):
     x = Dense(128, activation='relu')(x)
     x = Dropout(0.5)(x)
 
-    out = Dense(1, activation="sigmoid")(x)
+    out = Dense(2, activation="softmax")(x)
     return Model(inputs=input_grid, outputs=out)

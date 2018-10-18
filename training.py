@@ -27,7 +27,7 @@ def parallel_generate(i):
     labels = []
     grids = generate(ligands[i][0], ligands[i][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
     data.extend(grids)
-    label = 1
+    label = [1, 0]
     labels.extend([label] * (len(grids)))
 
     randomized_range = list(range(1, RANGE))
@@ -37,7 +37,7 @@ def parallel_generate(i):
             continue
         grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
         data.extend(grids)
-        label = 1 if i == j else 0
+        label = [0, 1]
         labels.extend([label] * (len(grids)))
         if len(grids) > 0:
             return data, labels
@@ -57,25 +57,6 @@ def generate_training_data_parallel():
     return data, labels
 
 
-def generate_training_data():
-    data = []
-    labels = []
-    proteins = [[None, None]]
-    ligands = [[None, None]]
-    for i in range(1, RANGE):
-        p_coordinates, p_atom_types = read_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % i))
-        l_coordinates, l_atom_types = read_pdb("training_data/{0}_lig_cg.pdb".format('%04d' % i))
-        proteins.append([p_coordinates, p_atom_types])
-        ligands.append([l_coordinates, l_atom_types])
-    for i in range(1, RANGE):
-        for j in range(1, RANGE):
-            grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
-            data.extend(grids)
-            label = 1 if i == j else 0
-            labels.extend([label]*(len(grids)))
-    return data, labels
-
-
 def training():
     dimension = RADIUS * 2 + 1
     model = build_model(input_shape=(dimension, dimension, dimension, 3))
@@ -92,10 +73,10 @@ def training():
     process = psutil.Process(os.getpid())
     print("Used total memory: {}".format(process.memory_info().rss))
 
-    # class weights
-    unique_labels = np.unique(labels)
-    weights = class_weight.compute_class_weight('balanced', unique_labels, labels)
-    print("Weights: {}".format(weights))
+    # # class weights
+    # unique_labels = np.unique(labels)
+    # weights = class_weight.compute_class_weight('balanced', unique_labels, labels)
+    # print("Weights: {}".format(weights))
 
     print("Starting training")
     model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=50,

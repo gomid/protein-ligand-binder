@@ -97,9 +97,9 @@ def training():
     print("Weights: {}".format(weights))
 
     print("Starting training")
-    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=50
+    model.fit([data], [labels], validation_split=0.2, batch_size=10, epochs=50,
               # class_weight=dict(zip(unique_labels, weights)),
-              # callbacks=[callbacks.EarlyStopping()]
+              callbacks=[callbacks.EarlyStopping(patience=2)]
               )
 
     print("Saving model")
@@ -112,8 +112,8 @@ def training():
 
 
 if __name__ == '__main__':
-    RANGE = 30
-    RADIUS = 6
+    RANGE = 300
+    RADIUS = 10
     DISTANCE_THRESHOLD = 7
     training()
 

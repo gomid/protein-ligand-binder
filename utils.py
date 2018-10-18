@@ -180,44 +180,7 @@ def test():
 
 def main():
     # calculate_atom_distances()
-    # np.set_printoptions(threshold=np.nan)
-    generate(1, 1, 10)
-
-    # pro, lig = preprocess(1, 1)
-    # print(sys.getsizeof(pro))
-    # print(sys.getsizeof(lig))
-
-    # x_range_max = 0
-    # y_range_max = 0
-    # z_range_max = 0
-    # a = 0
-    # b = 0
-    # c = 0
-    # for i in range(1, 3001):
-    #     p_coordinates, _ = read_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % i))
-    #     min_point, max_point = find_bounding_box(p_coordinates)
-    #     ranges = max_point - min_point
-    #     if ranges[0] > x_range_max:
-    #         x_range_max = ranges[0]
-    #         a = i
-    #     if ranges[1] > y_range_max:
-    #         y_range_max = ranges[1]
-    #         b = i
-    #     if ranges[2] > z_range_max:
-    #         z_range_max = ranges[2]
-    #         c = i
-    #
-    # print(x_range_max, y_range_max, z_range_max)
-    # print(a, b, c)
-    # p_coordinates, _ = read_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % 2797))
-    # min_point, max_point = find_bounding_box(p_coordinates)
-    # print(min_point, max_point)
-    # p_coordinates, _ = read_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % 2719))
-    # min_point, max_point = find_bounding_box(p_coordinates)
-    # print(min_point, max_point)
-    # p_coordinates, _ = read_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % 594))
-    # min_point, max_point = find_bounding_box(p_coordinates)
-    # print(min_point, max_point)
+    test()
 
 if __name__ == '__main__':
     main()

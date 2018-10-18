@@ -33,6 +33,8 @@ def parallel_generate(i):
     randomized_range = list(range(1, RANGE))
     shuffle(randomized_range)
     for j in randomized_range:
+        if i == j:
+            continue
         grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
         data.extend(grids)
         label = 1 if i == j else 0

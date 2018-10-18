@@ -105,7 +105,7 @@ def preprocess(seq, scale=1):
             atom = (scale * coordinates[i]).astype(int) + offsets
             if atom[0] >= N or atom[1] >= N or atom[2] >= N:
                 return None, None
-            polarity = 0 if atom_type_list[i] == 'C' else 1
+            polarity = 0 if atom_type_list[i] == 'h' else 1
             grid[atom[0]][atom[1]][atom[2]][0] = 1
             grid[atom[0]][atom[1]][atom[2]][1] = polarity
         grids.append(grid)
@@ -138,23 +138,20 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
         lo = center - offset
         hi = center + offset
 
-        add_to_grid(grid, center - lo, 0 if lig_atom_type_list[i] == 'C' else 1, 1)
+        add_to_grid(grid, center - lo, 0 if lig_atom_type_list[i] == 'h' else 1, 1)
         num_neighbor = 0
         for j in range(len(pro_atoms)):
             atom = (pro_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if np.all(atom >= lo) and np.all(atom <= hi):
                 num_neighbor = num_neighbor + 1
-                add_to_grid(grid, atom - lo, 0 if pro_atom_type_list[i] == 'C' else 1)
+                add_to_grid(grid, atom - lo, 0 if pro_atom_type_list[j] == 'h' else 1)
 
         for j in range(len(lig_atoms)):
             atom = (lig_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if i != j and np.all(atom >= lo) and np.all(atom <= hi):
                 num_neighbor = num_neighbor + 1
-                add_to_grid(grid, atom - lo, 0 if lig_atom_type_list[i] == 'C' else 1)
+                add_to_grid(grid, atom - lo, 0 if lig_atom_type_list[j] == 'h' else 1)
 
-        # print(num_neighbor)
-        # if (num_neighbor > 10):
-        #     grids.append(grid)
         grids.append(grid)
 
     return grids

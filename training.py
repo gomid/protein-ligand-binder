@@ -4,8 +4,6 @@ from keras import optimizers, losses, callbacks
 import os
 import time
 import psutil
-from sklearn.utils import class_weight
-import numpy as np
 from random import shuffle
 
 

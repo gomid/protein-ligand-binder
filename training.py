@@ -58,9 +58,10 @@ def generate_training_data_parallel():
 
 def training():
     dimension = RADIUS * 2 + 1
-    model = build_model(input_shape=(dimension, dimension, dimension, 3))
+    model = build_model(input_shape=(dimension, dimension, dimension, 4))
     # utils.plot_model(model, to_file='model.png')
-    adam = optimizers.Adam(decay=0.01)
+    # adam = optimizers.Adam(decay=0.01)
+    adam = optimizers.Adam()
     model.compile(optimizer=adam, loss=losses.binary_crossentropy, metrics=["accuracy"])
     model.summary()
 

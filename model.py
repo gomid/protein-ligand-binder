@@ -5,7 +5,7 @@ from keras.layers import Input, Dense, Dropout, Flatten, Conv3D, MaxPool3D, conc
 def build_model(input_shape=(21, 21, 21, 3)):
     input_grid = Input(shape=input_shape)
     x = Conv3D(filters=64, kernel_size=(16, 16, 16), padding='valid', activation='relu')(input_grid)
-    x = Conv3D(filters=128, kernel_size=(8, 8, 8), padding='valid', activation='relu')(x)
+    x = Conv3D(filters=128, kernel_size=(12, 12, 12), padding='valid', activation='relu')(x)
     x = MaxPool3D(pool_size=(2, 2, 2), padding='valid')(x)
     x = Dropout(0.25)(x)
 

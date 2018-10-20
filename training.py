@@ -62,6 +62,7 @@ def training():
     # utils.plot_model(model, to_file='model.png')
     adam = optimizers.Adam(decay=0.01)
     model.compile(optimizer=adam, loss=losses.binary_crossentropy, metrics=["accuracy"])
+    model.summary()
 
     start_time = time.time()
     data, labels = generate_training_data_parallel()

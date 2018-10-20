@@ -134,7 +134,7 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
     for i in range(len(lig_atoms)):
         lig_atom = lig_atoms[i]
         center = (lig_atom + np.array([0.5, 0.5, 0.5])).astype(int)
-        grid = np.zeros(shape=(N, N, N, 4))
+        grid = np.zeros(shape=(N, N, N, 3))
         lo = center - offset
         hi = center + offset
 

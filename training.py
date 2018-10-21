@@ -115,7 +115,7 @@ def train_atom(examples):
     with open("model.json", "w") as json_file:
         json_file.write(model_json)
     # serialize weights to HDF5
-    model.save_weights("model.h5")
+    model.save("model.h5")
 
     return model
 

@@ -29,6 +29,7 @@ def build_model(input_shape=(21, 21, 21, 3)):
 
 def build_classifier(input_shape=(None, 1)):
     input = Input(shape=input_shape)
-    x = Dense(4, activation='relu')(input)
+    x = Flatten()(input)
+    x = Dense(4, activation='relu')(x)
     out = Dense(1, activation='sigmoid')(x)
     return Model(inputs=input, outputs=out)

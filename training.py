@@ -5,6 +5,7 @@ import os
 import time
 import psutil
 from random import shuffle
+import numpy as np
 
 
 def initializer():
@@ -42,8 +43,8 @@ def parallel_generate(i):
         # data.extend(grids)
         # label = 0
         # labels.extend([label] * (len(grids)))
-        negative.append((grids, 0))
         if len(grids) > 0:
+            negative.append((grids, 0))
             count = count - 1
         if count <= 0:
             # return data, labels
@@ -104,7 +105,7 @@ def train_atom(examples):
     print("Generated {} examples".format(len(data)))
 
     print("Starting training")
-    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=50,
+    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=20,
               # class_weight=dict(zip(unique_labels, weights)),
               callbacks=[callbacks.EarlyStopping(patience=3)]
               )
@@ -136,16 +137,21 @@ def train(model_file=None):
     inputs = []
     labels = []
     for ex in test_data:
-        grids = ex[0]
-        inputs.append(atom_model.predict(grid) for grid in grids)
+        probs = atom_model.predict(np.array(ex[0]))
+        inputs.append(probs)
         labels.append(ex[1])
 
-    classifier = build_classifier()
-    optimizer = optimizers.Adam()
-    classifier.compile(optimizer=optimizer, loss=losses.binary_crossentropy, metrics=["accuracy"])
-    classifier.fit([inputs], [labels], validation_split=0.2, batch_size=10, epochs=50,
-                   callbacks=[callbacks.EarlyStopping(patience=3)]
-                   )
+    res = [i.mean() for i in inputs]
+    print(res)
+
+
+    # classifier = build_classifier()
+    # optimizer = optimizers.Adam()
+    # classifier.compile(optimizer=optimizer, loss=losses.binary_crossentropy, metrics=["accuracy"])
+    # classifier.summary()
+    # classifier.fit([inputs], [labels], validation_split=0.2, batch_size=10, epochs=20,
+    #                callbacks=[callbacks.EarlyStopping(patience=3)]
+    #                )
 
 
 if __name__ == '__main__':

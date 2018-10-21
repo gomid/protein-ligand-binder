@@ -31,6 +31,7 @@ def parallel_generate(i):
     # generate 1 negative example
     randomized_range = list(range(1, RANGE))
     shuffle(randomized_range)
+    count = NEGATIVE_EXAMPLE
     for j in randomized_range:
         if i == j:
             continue
@@ -39,6 +40,8 @@ def parallel_generate(i):
         label = 0
         labels.extend([label] * (len(grids)))
         if len(grids) > 0:
+            count = count - 1
+        if count <= 0:
             return data, labels
     return data, labels
 
@@ -92,6 +95,7 @@ def training():
 if __name__ == '__main__':
     RANGE = 3001
     RADIUS = 10
-    DISTANCE_THRESHOLD = 15
+    DISTANCE_THRESHOLD = 10
+    NEGATIVE_EXAMPLE = 2
     training()
 

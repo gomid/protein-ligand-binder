@@ -141,9 +141,9 @@ def train(model_file=None):
         inputs.append(probs)
         labels.append(ex[1])
 
-    res = [i.mean() for i in inputs]
-    print(res)
-
+    res = [int(round(i.mean())) for i in inputs]
+    result = np.array(res) - np.array(labels)
+    print(np.count_nonzero(result))
 
     # classifier = build_classifier()
     # optimizer = optimizers.Adam()
@@ -160,4 +160,4 @@ if __name__ == '__main__':
     DISTANCE_THRESHOLD = 10
     NEGATIVE_EXAMPLE = 2
     # train_atom()
-    train()
+    train("v1.h5")

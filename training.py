@@ -73,6 +73,8 @@ def prepare_data():
     start_time = time.time()
     # data, labels = generate_training_data_parallel()
     positive, negative = generate_training_data_parallel()
+    print("Generated {0} positive and {1} negative examples".format(len(positive), len(negative)))
+
 
     # data, labels = generate_training_data()
     print("--- %s seconds ---" % (time.time() - start_time))
@@ -102,7 +104,7 @@ def train_atom(examples):
     model.summary()
 
     data, labels = flatten(examples)
-    print("Generated {} examples".format(len(data)))
+    print("Training on {} examples".format(len(data)))
 
     print("Starting training")
     model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=20,
@@ -123,17 +125,16 @@ def train_atom(examples):
 
 def train(model_file=None):
     positive, negative = prepare_data()
-    examples = positive + negative[:len(positive)]
-    shuffle(examples)
-
     if model_file:
         atom_model = models.load_model(model_file)
     else:
+        examples = positive + negative[:len(positive)]
+        shuffle(examples)
         atom_model = train_atom(examples)
 
 
     test_data = positive + negative[len(positive):]
-    shuffle(test_data)
+    print("Validating overall result on {} examples".format(len(test_data)))
     inputs = []
     labels = []
     for ex in test_data:

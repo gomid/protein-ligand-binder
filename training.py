@@ -1,6 +1,6 @@
 from utils import generate, read_pdb
-from model import build_model
-from keras import optimizers, losses, callbacks
+from model import build_model, build_classifier
+from keras import optimizers, losses, callbacks, models
 import os
 import time
 import psutil
@@ -17,16 +17,19 @@ def initializer():
         l_coordinates, l_atom_types = read_pdb("training_data/{0}_lig_cg.pdb".format('%04d' % i))
         proteins.append([p_coordinates, p_atom_types])
         ligands.append([l_coordinates, l_atom_types])
-    print("Loaded training dataset")
 
 
 def parallel_generate(i):
-    data = []
-    labels = []
+    # data = []
+    # labels = []
+    positive = []
+    negative = []
     grids = generate(ligands[i][0], ligands[i][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
-    data.extend(grids)
-    label = 1
-    labels.extend([label] * (len(grids)))
+    positive.append((grids, 1))
+
+    # data.extend(grids)
+    # label = 1
+    # labels.extend([label] * (len(grids)))
 
     # generate 1 negative example
     randomized_range = list(range(1, RANGE))
@@ -36,14 +39,17 @@ def parallel_generate(i):
         if i == j:
             continue
         grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
-        data.extend(grids)
-        label = 0
-        labels.extend([label] * (len(grids)))
+        # data.extend(grids)
+        # label = 0
+        # labels.extend([label] * (len(grids)))
+        negative.append((grids, 0))
         if len(grids) > 0:
             count = count - 1
         if count <= 0:
-            return data, labels
-    return data, labels
+            # return data, labels
+            return positive, negative
+    # return data, labels
+    return positive, negative
 
 
 def generate_training_data_parallel():
@@ -51,15 +57,41 @@ def generate_training_data_parallel():
     cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(cores, initializer)
     print("Generating training examples on {} CPU cores".format(cores))
-    data, labels = zip(*pool.map(parallel_generate, range(1, RANGE)))
+    # data, labels = zip(*pool.map(parallel_generate, range(1, RANGE)))
+    positive, negative = zip(*pool.map(parallel_generate, range(1, RANGE)))
     pool.close()
     pool.join()
-    data = [item for sublist in data for item in sublist]
-    labels = [item for sublist in labels for item in sublist]
+    positive = [item for sublist in positive for item in sublist]
+    negative = [item for sublist in negative for item in sublist]
+    # data = [item for sublist in data for item in sublist]
+    # labels = [item for sublist in labels for item in sublist]
+    return positive, negative
+
+
+def prepare_data():
+    start_time = time.time()
+    # data, labels = generate_training_data_parallel()
+    positive, negative = generate_training_data_parallel()
+
+    # data, labels = generate_training_data()
+    print("--- %s seconds ---" % (time.time() - start_time))
+    # memory usage
+    process = psutil.Process(os.getpid())
+    print("Used total memory: {}".format(process.memory_info().rss))
+    return positive, negative
+
+
+def flatten(examples):
+    data = []
+    labels = []
+    for ex in examples:
+        grids = ex[0]
+        data.extend(grids)
+        labels.extend([ex[1]] * (len(grids)))
     return data, labels
 
 
-def training():
+def train_atom(examples):
     dimension = RADIUS * 2 + 1
     model = build_model(input_shape=(dimension, dimension, dimension, 3))
     # utils.plot_model(model, to_file='model.png')
@@ -68,14 +100,8 @@ def training():
     model.compile(optimizer=adam, loss=losses.binary_crossentropy, metrics=["accuracy"])
     model.summary()
 
-    start_time = time.time()
-    data, labels = generate_training_data_parallel()
-    # data, labels = generate_training_data()
+    data, labels = flatten(examples)
     print("Generated {} examples".format(len(data)))
-    print("--- %s seconds ---" % (time.time() - start_time))
-    # memory usage
-    process = psutil.Process(os.getpid())
-    print("Used total memory: {}".format(process.memory_info().rss))
 
     print("Starting training")
     model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=50,
@@ -91,11 +117,41 @@ def training():
     # serialize weights to HDF5
     model.save_weights("model.h5")
 
+    return model
+
+
+def train(model_file=None):
+    positive, negative = prepare_data()
+    examples = positive + negative[:len(positive)]
+    shuffle(examples)
+
+    if model_file:
+        atom_model = models.load_model(model_file)
+    else:
+        atom_model = train_atom(examples)
+
+
+    test_data = positive + negative[len(positive):]
+    shuffle(test_data)
+    inputs = []
+    labels = []
+    for ex in test_data:
+        grids = ex[0]
+        inputs.append(atom_model.predict(grid) for grid in grids)
+        labels.append(ex[1])
+
+    classifier = build_classifier()
+    optimizer = optimizers.Adam()
+    classifier.compile(optimizer=optimizer, loss=losses.binary_crossentropy, metrics=["accuracy"])
+    classifier.fit([inputs], [labels], validation_split=0.2, batch_size=10, epochs=50,
+                   callbacks=[callbacks.EarlyStopping(patience=3)]
+                   )
+
 
 if __name__ == '__main__':
     RANGE = 3001
     RADIUS = 10
     DISTANCE_THRESHOLD = 10
     NEGATIVE_EXAMPLE = 2
-    training()
-
+    # train_atom()
+    train()

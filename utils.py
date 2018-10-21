@@ -1,10 +1,9 @@
 import numpy as np
 from math import sqrt
 from scipy import spatial
-import sys
 
 
-def read_pdb(filename, filter=False):
+def read_pdb(filename):
     # outlier = 0
     with open(filename, 'r') as file:
         strline_L = file.readlines()
@@ -173,10 +172,13 @@ def coordinate_range(type="pro"):
     print(np.array(mins).min(axis=0))
 
 def test():
-    for i in range(1, 2):
-        p_coordinates, type = read_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % i), filter=True)
-        preprocess(p_coordinates, type)
-
+    list = []
+    for i in range(1, 3001):
+        l_coordinates, type = read_pdb("training_data/{0}_lig_cg.pdb".format('%04d' % i))
+        list.append(len(l_coordinates))
+    list = np.array(list)
+    from scipy import stats
+    print(stats.describe(list))
 
 def main():
     # calculate_atom_distances()

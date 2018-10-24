@@ -98,7 +98,7 @@ def train(examples):
     print("Training on {} examples".format(len(data)))
 
     print("Starting training")
-    model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=20,
+    model.fit([data], [labels], validation_split=VALIDATION_SPLIT, batch_size=100, epochs=20,
               callbacks=[callbacks.EarlyStopping(patience=3)]
               )
 
@@ -172,5 +172,6 @@ if __name__ == '__main__':
     DISTANCE_THRESHOLD = 10
     NEGATIVE_EXAMPLE = 2
     TEST_RANGE = 825
+    VALIDATION_SPLIT = 0.1
     # train_atom()
     evaluate("v1.h5")

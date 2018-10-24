@@ -23,7 +23,7 @@ def initializer():
 def parallel_generate(i):
     positive = []
     negative = []
-    grids = generate(ligands[i][0], ligands[i][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
+    grids = generate(ligands[i][0], ligands[i][1], proteins[i][0], proteins[i][1], RADIUS, MIN_DISTANCE_THRESHOLD, MAX_DISTANCE_THRESHOLD)
     positive.append((grids, 1))
 
     # generate negative example
@@ -33,7 +33,7 @@ def parallel_generate(i):
     for j in randomized_range:
         if i == j:
             continue
-        grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
+        grids = generate(ligands[j][0], ligands[j][1], proteins[i][0], proteins[i][1], RADIUS, MIN_DISTANCE_THRESHOLD, MAX_DISTANCE_THRESHOLD)
         # data.extend(grids)
         # label = 0
         # labels.extend([label] * (len(grids)))
@@ -154,7 +154,7 @@ def predict(model):
     # candidate_count = 0
     for i in range(1, TEST_RANGE):
         for j in range(1, TEST_RANGE):
-            grids = generate(test_lig[j][0], test_lig[j][1], test_pro[i][0], test_pro[i][1], RADIUS, DISTANCE_THRESHOLD)
+            grids = generate(test_lig[j][0], test_lig[j][1], test_pro[i][0], test_pro[i][1], RADIUS, MIN_DISTANCE_THRESHOLD, MAX_DISTANCE_THRESHOLD)
             if len(grids) > 0:
                 # candidate_count = candidate_count + 1
                 # FIXME use average atom score as overall score?
@@ -180,7 +180,8 @@ def predict(model):
 if __name__ == '__main__':
     RANGE = 3001
     RADIUS = 10
-    DISTANCE_THRESHOLD = 10
+    MIN_DISTANCE_THRESHOLD = 1.5
+    MAX_DISTANCE_THRESHOLD = 10
     NEGATIVE_EXAMPLE = 2
     TEST_RANGE = 200
     VALIDATION_SPLIT = 0.2

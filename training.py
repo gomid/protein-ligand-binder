@@ -178,7 +178,7 @@ if __name__ == '__main__':
     RADIUS = 10
     DISTANCE_THRESHOLD = 10
     NEGATIVE_EXAMPLE = 2
-    TEST_RANGE = 20
+    TEST_RANGE = 825
     VALIDATION_SPLIT = 0.1
     # train_atom()
     evaluate("v1.h5")

@@ -3,6 +3,29 @@ from math import sqrt
 from scipy import spatial
 
 
+def read_test_pdb(filename):
+    with open(filename, 'r') as file:
+        strline_L = file.readlines()
+    # print(strline_L)
+
+    coordinates = []
+    atomtype_list = list()
+    for strline in strline_L:
+        # removes all whitespace at the start and end, including spaces, tabs, newlines and carriage returns
+        stripped_line = strline.strip()
+        # print(stripped_line)
+
+        splitted_line = stripped_line.split('\t')
+
+        x = float(splitted_line[0])
+        y = float(splitted_line[1])
+        z = float(splitted_line[2])
+        coordinates.append([x, y, z])
+        atomtype_list.append(str(splitted_line[3]))
+
+    return np.array(coordinates), atomtype_list
+
+
 def read_pdb(filename):
     # outlier = 0
     with open(filename, 'r') as file:
@@ -22,9 +45,6 @@ def read_pdb(filename):
         x = float(stripped_line[30:38].strip())
         y = float(stripped_line[38:46].strip())
         z = float(stripped_line[46:54].strip())
-        # if filter and (x > 200 or x < -200 or y > 200 or y < -200 or z > 200 or z < -200):
-        #     outlier = outlier+1
-        #     continue
         coordinates.append([x, y, z])
         atomtype = stripped_line[76:78].strip()
         if atomtype == 'C':
@@ -32,8 +52,6 @@ def read_pdb(filename):
         else:
             atomtype_list.append('p') # 'p' means polar
 
-    # if outlier > 0:
-    #     print(outlier)
     return np.array(coordinates), atomtype_list
 
 
@@ -184,8 +202,12 @@ def main():
     # calculate_atom_distances()
     test()
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+    # with open('test_ground_truth.txt', 'w') as f:
+    #     f.write('pro_id\tlig_id\n')
+    #     for i in range(1, 3001):
+    #         f.write('{0}\t{1}\n'.format(i, i))
+
 
 
 

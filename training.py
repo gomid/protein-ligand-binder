@@ -1,4 +1,4 @@
-from utils import generate, read_pdb
+from utils import generate, read_pdb, read_test_pdb
 from model import build_model, build_classifier
 from keras import optimizers, losses, callbacks, models
 import os
@@ -21,18 +21,12 @@ def initializer():
 
 
 def parallel_generate(i):
-    # data = []
-    # labels = []
     positive = []
     negative = []
     grids = generate(ligands[i][0], ligands[i][1], proteins[i][0], proteins[i][1], RADIUS, DISTANCE_THRESHOLD)
     positive.append((grids, 1))
 
-    # data.extend(grids)
-    # label = 1
-    # labels.extend([label] * (len(grids)))
-
-    # generate 1 negative example
+    # generate negative example
     randomized_range = list(range(1, RANGE))
     shuffle(randomized_range)
     count = NEGATIVE_EXAMPLE
@@ -64,8 +58,6 @@ def generate_training_data_parallel():
     pool.join()
     positive = [item for sublist in positive for item in sublist]
     negative = [item for sublist in negative for item in sublist]
-    # data = [item for sublist in data for item in sublist]
-    # labels = [item for sublist in labels for item in sublist]
     return positive, negative
 
 
@@ -74,7 +66,6 @@ def prepare_data():
     # data, labels = generate_training_data_parallel()
     positive, negative = generate_training_data_parallel()
     print("Generated {0} positive and {1} negative examples".format(len(positive), len(negative)))
-
 
     # data, labels = generate_training_data()
     print("--- %s seconds ---" % (time.time() - start_time))
@@ -94,7 +85,7 @@ def flatten(examples):
     return data, labels
 
 
-def train_atom(examples):
+def train(examples):
     dimension = RADIUS * 2 + 1
     model = build_model(input_shape=(dimension, dimension, dimension, 3))
     # utils.plot_model(model, to_file='model.png')
@@ -108,7 +99,6 @@ def train_atom(examples):
 
     print("Starting training")
     model.fit([data], [labels], validation_split=0.2, batch_size=100, epochs=20,
-              # class_weight=dict(zip(unique_labels, weights)),
               callbacks=[callbacks.EarlyStopping(patience=3)]
               )
 
@@ -123,36 +113,53 @@ def train_atom(examples):
     return model
 
 
-def train(model_file=None):
-    positive, negative = prepare_data()
+def evaluate(model_file=None):
     if model_file:
         atom_model = models.load_model(model_file)
     else:
+        positive, negative = prepare_data()
         examples = positive + negative[:len(positive)]
         shuffle(examples)
-        atom_model = train_atom(examples)
+        atom_model = train(examples)
 
+    # test_data = positive + negative[len(positive):]
+    # print("Validating overall result on {} examples".format(len(test_data)))
+    # inputs = []
+    # labels = []
+    # for ex in test_data:
+    #     probs = atom_model.predict(np.array(ex[0]))
+    #     inputs.append(probs)
+    #     labels.append(ex[1])
+    #
+    # res = [int(round(i.mean())) for i in inputs]
+    # result = np.array(res) - np.array(labels)
+    # print(np.count_nonzero(result))
 
-    test_data = positive + negative[len(positive):]
-    print("Validating overall result on {} examples".format(len(test_data)))
-    inputs = []
-    labels = []
-    for ex in test_data:
-        probs = atom_model.predict(np.array(ex[0]))
-        inputs.append(probs)
-        labels.append(ex[1])
+    test_pro = [[None, None]]
+    test_lig = [[None, None]]
+    scores = np.zeros(shape=(TEST_RANGE, TEST_RANGE))
 
-    res = [int(round(i.mean())) for i in inputs]
-    result = np.array(res) - np.array(labels)
-    print(np.count_nonzero(result))
+    # predict top 10 matching ligands for each protein
+    for i in range(1, TEST_RANGE):
+        p_coordinates, p_atom_types = read_test_pdb("testing_data/{0}_pro_cg.pdb".format('%04d' % i))
+        l_coordinates, l_atom_types = read_test_pdb("testing_data/{0}_lig_cg.pdb".format('%04d' % i))
+        test_pro.append([p_coordinates, p_atom_types])
+        test_lig.append([l_coordinates, l_atom_types])
+    for i in range(1, TEST_RANGE):
+        for j in range(1, TEST_RANGE):
+            grids = generate(test_lig[j][0], test_lig[j][1], test_pro[i][0], test_pro[i][1], RADIUS, DISTANCE_THRESHOLD)
+            if len(grids) > 0:
+                # FIXME use average atom score as overall score?
+                scores[i][j] = atom_model.predict(np.array(grids)).mean()
 
-    # classifier = build_classifier()
-    # optimizer = optimizers.Adam()
-    # classifier.compile(optimizer=optimizer, loss=losses.binary_crossentropy, metrics=["accuracy"])
-    # classifier.summary()
-    # classifier.fit([inputs], [labels], validation_split=0.2, batch_size=10, epochs=20,
-    #                callbacks=[callbacks.EarlyStopping(patience=3)]
-    #                )
+    header_column = np.arange(1, TEST_RANGE).reshape(TEST_RANGE-1, 1)
+    result = np.array([np.argpartition(arr, -10)[-10:] for arr in scores[1:]]).astype(int)
+    result = np.append(header_column, result, axis=1)
+    with open('test_predictions.txt', 'w') as outfile:
+        outfile.write('pro_id\tlig1_id\tlig2_id\tlig3_id\tlig4_id\tlig5_id\tlig6_id\tlig7_id\tlig8_id\tlig9_id\tlig10_id\n')
+        # for row in result:
+        #     outfile.write(np.array2string(row, separator="\t"))
+        np.savetxt(outfile, result, fmt='%i', delimiter='\t')
 
 
 if __name__ == '__main__':
@@ -160,5 +167,6 @@ if __name__ == '__main__':
     RADIUS = 10
     DISTANCE_THRESHOLD = 10
     NEGATIVE_EXAMPLE = 2
+    TEST_RANGE = 825
     # train_atom()
-    train("v1.h5")
+    evaluate("v1.h5")

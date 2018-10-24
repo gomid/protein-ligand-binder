@@ -148,18 +148,21 @@ def evaluate(model_file=None):
         test_lig.append([l_coordinates, l_atom_types])
 
     print("Testing")
-    candidate_count = 0
+    # candidate_count = 0
     for i in range(1, TEST_RANGE):
         for j in range(1, TEST_RANGE):
             grids = generate(test_lig[j][0], test_lig[j][1], test_pro[i][0], test_pro[i][1], RADIUS, DISTANCE_THRESHOLD)
             if len(grids) > 0:
-                candidate_count = candidate_count + 1
+                # candidate_count = candidate_count + 1
                 # FIXME use average atom score as overall score?
                 scores[i][j] = atom_model.predict(np.array(grids)).mean()
                 print("Evaluated Protein {0} with Ligand {1}, score: {2}".format(i, j, scores[i][j]))
 
     print("#################################################################################################")
-    print("Evaluated {} candidates".format(candidate_count))
+    # print("Evaluated {} candidates".format(candidate_count))
+
+    np.savetxt('test_scores_max.txt', scores.max(axis=1), fmt='%.2f')
+    np.savetxt('test_scores_mean.txt', scores.mean(axis=1), fmt='%.2f')
 
     header_column = np.arange(1, TEST_RANGE).reshape(TEST_RANGE-1, 1)
     result = np.array([np.argpartition(arr, -10)[-10:] for arr in scores[1:]]).astype(int)
@@ -175,7 +178,7 @@ if __name__ == '__main__':
     RADIUS = 10
     DISTANCE_THRESHOLD = 10
     NEGATIVE_EXAMPLE = 2
-    TEST_RANGE = 825
+    TEST_RANGE = 20
     VALIDATION_SPLIT = 0.1
     # train_atom()
     evaluate("v1.h5")

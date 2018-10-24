@@ -134,16 +134,19 @@ def evaluate(model_file=None):
     # res = [int(round(i.mean())) for i in inputs]
     # result = np.array(res) - np.array(labels)
     # print(np.count_nonzero(result))
+    predict(atom_model)
 
+
+def predict(model):
     test_pro = [[None, None]]
     test_lig = [[None, None]]
     scores = np.zeros(shape=(TEST_RANGE, TEST_RANGE))
 
     # predict top 10 matching ligands for each protein
     print("Generating test data")
-    for i in range(1, TEST_RANGE):
-        p_coordinates, p_atom_types = read_test_pdb("testing_data/{0}_pro_cg.pdb".format('%04d' % i))
-        l_coordinates, l_atom_types = read_test_pdb("testing_data/{0}_lig_cg.pdb".format('%04d' % i))
+    for i in range(101, 300):
+        p_coordinates, p_atom_types = read_test_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % i))
+        l_coordinates, l_atom_types = read_test_pdb("training_data/{0}_lig_cg.pdb".format('%04d' % i))
         test_pro.append([p_coordinates, p_atom_types])
         test_lig.append([l_coordinates, l_atom_types])
 
@@ -155,7 +158,7 @@ def evaluate(model_file=None):
             if len(grids) > 0:
                 # candidate_count = candidate_count + 1
                 # FIXME use average atom score as overall score?
-                scores[i][j] = atom_model.predict(np.array(grids)).mean()
+                scores[i][j] = model.predict(np.array(grids)).mean()
                 print("Evaluated Protein {0} with Ligand {1}, score: {2}".format(i, j, scores[i][j]))
 
     print("#################################################################################################")
@@ -164,7 +167,7 @@ def evaluate(model_file=None):
     np.savetxt('test_scores_max.txt', scores.max(axis=1), fmt='%.2f')
     np.savetxt('test_scores_mean.txt', scores.mean(axis=1), fmt='%.2f')
 
-    header_column = np.arange(1, TEST_RANGE).reshape(TEST_RANGE-1, 1)
+    header_column = np.arange(1, TEST_RANGE).reshape(TEST_RANGE - 1, 1)
     result = np.array([np.argpartition(arr, -10)[-10:] for arr in scores[1:]]).astype(int)
     result = np.append(header_column, result, axis=1)
     print("Saving to text_predictions.txt")
@@ -178,7 +181,7 @@ if __name__ == '__main__':
     RADIUS = 10
     DISTANCE_THRESHOLD = 10
     NEGATIVE_EXAMPLE = 2
-    TEST_RANGE = 825
+    TEST_RANGE = 200
     VALIDATION_SPLIT = 0.1
     # train_atom()
     evaluate("v1.h5")

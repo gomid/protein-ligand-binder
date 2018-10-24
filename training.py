@@ -140,11 +140,14 @@ def evaluate(model_file=None):
     scores = np.zeros(shape=(TEST_RANGE, TEST_RANGE))
 
     # predict top 10 matching ligands for each protein
+    print("Generating test data")
     for i in range(1, TEST_RANGE):
         p_coordinates, p_atom_types = read_test_pdb("testing_data/{0}_pro_cg.pdb".format('%04d' % i))
         l_coordinates, l_atom_types = read_test_pdb("testing_data/{0}_lig_cg.pdb".format('%04d' % i))
         test_pro.append([p_coordinates, p_atom_types])
         test_lig.append([l_coordinates, l_atom_types])
+
+    print("Testing")
     for i in range(1, TEST_RANGE):
         for j in range(1, TEST_RANGE):
             grids = generate(test_lig[j][0], test_lig[j][1], test_pro[i][0], test_pro[i][1], RADIUS, DISTANCE_THRESHOLD)
@@ -155,6 +158,7 @@ def evaluate(model_file=None):
     header_column = np.arange(1, TEST_RANGE).reshape(TEST_RANGE-1, 1)
     result = np.array([np.argpartition(arr, -10)[-10:] for arr in scores[1:]]).astype(int)
     result = np.append(header_column, result, axis=1)
+    print("Saving to text_predictions.txt")
     with open('test_predictions.txt', 'w') as outfile:
         outfile.write('pro_id\tlig1_id\tlig2_id\tlig3_id\tlig4_id\tlig5_id\tlig6_id\tlig7_id\tlig8_id\tlig9_id\tlig10_id\n')
         # for row in result:

@@ -164,6 +164,7 @@ def predict(model):
     print("#################################################################################################")
     # print("Evaluated {} candidates".format(candidate_count))
 
+    np.savetxt('test_scores.txt', scores, fmt='%.2f')
     np.savetxt('test_scores_max.txt', scores.max(axis=1), fmt='%.2f')
     np.savetxt('test_scores_mean.txt', scores.mean(axis=1), fmt='%.2f')
 
@@ -182,6 +183,6 @@ if __name__ == '__main__':
     DISTANCE_THRESHOLD = 10
     NEGATIVE_EXAMPLE = 2
     TEST_RANGE = 200
-    VALIDATION_SPLIT = 0.1
+    VALIDATION_SPLIT = 0.2
     # train_atom()
     evaluate("v1.h5")

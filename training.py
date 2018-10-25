@@ -134,7 +134,7 @@ def evaluate(model_file=None):
     # res = [int(round(i.mean())) for i in inputs]
     # result = np.array(res) - np.array(labels)
     # print(np.count_nonzero(result))
-    predict(atom_model)
+    # predict(atom_model)
 
 
 def predict(model):
@@ -185,4 +185,5 @@ if __name__ == '__main__':
     TEST_RANGE = 200
     VALIDATION_SPLIT = 0.2
     # train_atom()
-    evaluate("v1.h5")
+    # evaluate("v1.h5")
+    evaluate()

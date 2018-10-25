@@ -150,23 +150,23 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
     offset = np.array([radius, radius, radius])
     for i in range(len(lig_atoms)):
         lig_atom = lig_atoms[i]
-        center = (lig_atom + np.array([0.5, 0.5, 0.5])).astype(int)
+        # center = (lig_atom + np.array([0.5, 0.5, 0.5])).astype(int)
+        center = np.rint(lig_atom).astype(int)
         grid = np.zeros(shape=(N, N, N, 3))
         lo = center - offset
         hi = center + offset
 
         add_to_grid(grid, center - lo, 0 if lig_atom_type_list[i] == 'h' else 1, 1)
-        num_neighbor = 0
         for j in range(len(pro_atoms)):
-            atom = (pro_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
+            atom = np.rint(pro_atoms[j]).astype(int)
+            # atom = (pro_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if np.all(atom >= lo) and np.all(atom <= hi):
-                num_neighbor = num_neighbor + 1
                 add_to_grid(grid, atom - lo, 0 if pro_atom_type_list[j] == 'h' else 1)
 
         for j in range(len(lig_atoms)):
-            atom = (lig_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
+            atom = np.rint(lig_atoms[j]).astype(int)
+            # atom = (lig_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if i != j and np.all(atom >= lo) and np.all(atom <= hi):
-                num_neighbor = num_neighbor + 1
                 add_to_grid(grid, atom - lo, 0 if lig_atom_type_list[j] == 'h' else 1, 1)
 
         grids.append(grid)

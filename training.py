@@ -134,7 +134,7 @@ def evaluate(model_file=None):
     # res = [int(round(i.mean())) for i in inputs]
     # result = np.array(res) - np.array(labels)
     # print(np.count_nonzero(result))
-    predict(atom_model)
+    # predict(atom_model)
 
 
 def predict(model):

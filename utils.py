@@ -202,12 +202,13 @@ def main():
     # calculate_atom_distances()
     test()
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     # with open('test_ground_truth.txt', 'w') as f:
     #     f.write('pro_id\tlig_id\n')
     #     for i in range(1, 3001):
     #         f.write('{0}\t{1}\n'.format(i, i))
-
-
-
-
+    a = np.array([[3, 2 ,1], [3, 4, 5]])
+    b = np.argsort(a, axis=1)[:, -1:]
+    print(b)
+    for idx, val in enumerate(b):
+        print(a[idx][val])

@@ -134,7 +134,7 @@ def evaluate(model_file=None):
     # res = [int(round(i.mean())) for i in inputs]
     # result = np.array(res) - np.array(labels)
     # print(np.count_nonzero(result))
-    # predict(atom_model)
+    predict(atom_model)
 
 
 def predict(model):
@@ -144,9 +144,9 @@ def predict(model):
 
     # predict top 10 matching ligands for each protein
     print("Generating test data")
-    for i in range(101, 300):
-        p_coordinates, p_atom_types = read_test_pdb("training_data/{0}_pro_cg.pdb".format('%04d' % i))
-        l_coordinates, l_atom_types = read_test_pdb("training_data/{0}_lig_cg.pdb".format('%04d' % i))
+    for i in range(1, TEST_RANGE):
+        p_coordinates, p_atom_types = read_test_pdb("testing_data/{0}_pro_cg.pdb".format('%04d' % i))
+        l_coordinates, l_atom_types = read_test_pdb("testing_data/{0}_lig_cg.pdb".format('%04d' % i))
         test_pro.append([p_coordinates, p_atom_types])
         test_lig.append([l_coordinates, l_atom_types])
 
@@ -164,12 +164,20 @@ def predict(model):
     print("#################################################################################################")
     # print("Evaluated {} candidates".format(candidate_count))
 
+    scores = scores[1:]
     np.savetxt('test_scores.txt', scores, fmt='%.2f')
     np.savetxt('test_scores_max.txt', scores.max(axis=1), fmt='%.2f')
     np.savetxt('test_scores_mean.txt', scores.mean(axis=1), fmt='%.2f')
 
     header_column = np.arange(1, TEST_RANGE).reshape(TEST_RANGE - 1, 1)
-    result = np.array([np.argpartition(arr, -10)[-10:] for arr in scores[1:]]).astype(int)
+    # result = np.array([np.argpartition(arr, -10)[-10:] for arr in scores[1:]]).astype(int)
+    result = scores.argsort(axis=1)[:, -10:]
+
+    top_scores = []
+    for idx, val in enumerate(result):
+        top_scores.append(scores[idx][val])
+    np.savetxt('test_top10_scores.txt', top_scores, fmt='%.2f')
+
     result = np.append(header_column, result, axis=1)
     print("Saving to text_predictions.txt")
     with open('test_predictions.txt', 'w') as f:
@@ -185,5 +193,5 @@ if __name__ == '__main__':
     TEST_RANGE = 825
     VALIDATION_SPLIT = 0.2
     # train_atom()
-    # evaluate("v1.h5")
-    evaluate()
+    evaluate("v2.h5")
+    # evaluate()

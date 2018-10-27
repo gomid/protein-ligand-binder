@@ -135,9 +135,16 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
     Round to nearest integer
     """
     def add_to_grid(grid, atom, polarity, ligand=0):
-        grid[atom[0]][atom[1]][atom[2]][0] = 1
-        grid[atom[0]][atom[1]][atom[2]][1] = polarity
-        grid[atom[0]][atom[1]][atom[2]][2] = ligand
+        x_y_z = np.rint(atom).astype(int)
+        x = x_y_z[0]
+        y = x_y_z[1]
+        z = x_y_z[2]
+        if ligand == 1:
+            grid[x][y][z][0] = 1
+            grid[x][y][z][1] = polarity
+        else:
+            grid[x][y][z][2] = 1
+            grid[x][y][z][3] = polarity
 
     grids = []
     # lig_atoms, lig_atom_type_list = read_pdb("training_data/{0}_{1}_cg.pdb".format('%04d' % lig_id, "lig"))
@@ -148,25 +155,27 @@ def generate(lig_atoms, lig_atom_type_list, pro_atoms, pro_atom_type_list, radiu
 
     N = radius * 2 + 1
     offset = np.array([radius, radius, radius])
+
     for i in range(len(lig_atoms)):
-        lig_atom = lig_atoms[i]
+        center = lig_atoms[i]
+
         # center = (lig_atom + np.array([0.5, 0.5, 0.5])).astype(int)
-        center = np.rint(lig_atom).astype(int)
-        grid = np.zeros(shape=(N, N, N, 3))
+        # center = np.rint(lig_atom).astype(int)
+
+        grid = np.zeros(shape=(N, N, N, 4))
+
         lo = center - offset
         hi = center + offset
-
-        add_to_grid(grid, center - lo, 0 if lig_atom_type_list[i] == 'h' else 1, 1)
         for j in range(len(pro_atoms)):
-            atom = np.rint(pro_atoms[j]).astype(int)
+            atom = pro_atoms[j]
             # atom = (pro_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
             if np.all(atom >= lo) and np.all(atom <= hi):
                 add_to_grid(grid, atom - lo, 0 if pro_atom_type_list[j] == 'h' else 1)
 
         for j in range(len(lig_atoms)):
-            atom = np.rint(lig_atoms[j]).astype(int)
+            atom = lig_atoms[j]
             # atom = (lig_atoms[j] + np.array([0.5, 0.5, 0.5])).astype(int)
-            if i != j and np.all(atom >= lo) and np.all(atom <= hi):
+            if np.all(atom >= lo) and np.all(atom <= hi):
                 add_to_grid(grid, atom - lo, 0 if lig_atom_type_list[j] == 'h' else 1, 1)
 
         grids.append(grid)

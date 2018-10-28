@@ -161,7 +161,6 @@ def evaluate(model_file=None):
 
     # save intermediate results
     print("############################################################################################")
-    np.savetxt('test_scores.txt', scores, fmt='%.2f')
     np.savetxt('test_scores_max.txt', scores.max(axis=1), fmt='%.2f')
     np.savetxt('test_scores_mean.txt', scores.mean(axis=1), fmt='%.2f')
 

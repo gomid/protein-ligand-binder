@@ -188,7 +188,7 @@ if __name__ == '__main__':
     TEST_RANGE = 825
     VALIDATION_SPLIT = 0.2
 
-    if len(sys.argv == 2):
+    if len(sys.argv) == 2:
         evaluate(sys.argv[1])
     else:
         evaluate()
